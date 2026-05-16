@@ -1,0 +1,25 @@
+{
+  "appName": "博知",
+  "appPackageName": "top.webcat.app761001",
+  "appVersionName": "1.0",
+  "appVersionCode": 100000,
+  "data": {
+    "启用顶栏": false,
+    "顶栏标题": "博知",
+    "顶栏颜色": "#FF2C2E43",
+    "横屏": false,
+    "显示状态栏": false,
+    "启用进度条": true,
+    "进度条颜色": "#00000000",
+    "支持打开外部应用": false,
+    "提示打开外部应用": false,
+    "启动页面": "index.html"
+  },
+  "indexPages": [],
+  "webViewSettings": {
+    "javaScriptEnabled": true,
+    "allowMixedContent": true,
+    "allowsInlineMediaPlayback": false,
+    "mediaPlaybackRequiresUserAction": true
+  }
+}
