@@ -165,6 +165,799 @@ input,textarea,select{width:100%;padding:10px;margin:6px 0;border-radius:10px;ba
 .name-link{color:var(--primary);cursor:pointer;font-weight:500;}
 .name-link:hover{text-decoration:underline;}
 .chat-back{padding:10px 14px;color:var(--primary);cursor:pointer;border-bottom:1px solid var(--border);}
+</style>
+</head>
+<body>
+
+<div id="splash">
+  <h2>博知 · 热搜社交平台</h2>
+  <button class="login" onclick="showLogin()">登录</button>
+  <button class="reg" onclick="showReg()">注册</button>
+  <button class="guest" onclick="guest()">游客浏览</button>
+</div>
+
+<button id="floatPostBtn" onclick="showPost()">➕</button>
+<div id="topProgress"></div>
+
+<div class="header">
+  <div>博知</div>
+  <button class="video-btn" onclick="page('videoPage');loadVideoPage()">刷视频</button>
+  <div id="nick">请登录</div>
+</div>
+
+<div id="home" style="display:block;padding-top:60px">
+  <div class="search">
+	<input id="kw" placeholder="搜索用户名/帖子内容" onkeyup="if(event.key=='Enter')search()">
+	<button class="btn" onclick="search()">搜索</button>
+  </div>
+  <div id="result"></div>
+  <button class="btn" onclick="loadPosts()">刷新</button>
+  <div id="list"></div>
+</div>
+
+<div id="videoPage">
+  <div class="video-swiper" id="videoSwiper"></div>
+</div>
+
+<div id="hot" style="display:none;padding-top:60px">
+  <h3 style="margin:14px">热搜排行</h3>
+  <div id="hotList"></div>
+</div>
+
+<div id="chat" style="display:none;padding-top:60px;padding-bottom:70px">
+  <h3 style="margin:14px">👥 我的好友</h3>
+  <div id="friendList"></div>
+
+  <div id="chatBox" style="display:none">
+    <div class="chat-back" onclick="closeChatBox()">← 返回好友列表</div>
+    <div class="cmt-list" id="chatMsgList"></div>
+    <div class="cmt-send">
+      <input id="chatInput" placeholder="输入私信消息">
+      <button class="btn" onclick="sendPrivateMsg()">发送</button>
+    </div>
+  </div>
+</div>
+
+<div id="msgPage">
+  <h3 style="margin:14px">🔔 消息通知</h3>
+  <div class="msg-group-title">✨ 新消息</div>
+  <div id="newMsgList"></div>
+  <div class="msg-group-title">📜 历史旧消息</div>
+  <div id="oldMsgList"></div>
+</div>
+
+<div id="set" style="display:none;padding-top:60px">
+  <div style="padding:14px">
+	<div class="set-item">
+	  <div class="set-title">数据库提醒</div>
+	  <div class="set-desc">长期不活跃内容会被自动清理</div>
+	</div>
+	<div class="set-item" onclick="toggleTheme()">
+	  <div class="set-title">切换深色/浅色模式</div>
+	</div>
+	<button class="btn" style="width:100%;margin-top:20px" onclick="logout()">退出登录</button>
+  </div>
+</div>
+
+<div id="user" style="display:none;padding-top:60px;padding-bottom:70px">
+  <div class="profile">
+	<img id="ava" class="avatar-lg" src="https://picsum.photos/200">
+	<h2 id="uname"></h2>
+	<div style="color:red;font-weight:bold" id="ban"></div>
+	<div class="row">
+	  <div>关注 <span id="follow">0</span></div>
+	  <div>粉丝 <span id="fans">0</span></div>
+	</div>
+	<button class="btn" id="followBtn" style="margin-top:10px;cursor:pointer" onclick="toggleFollow()"></button>
+  </div>
+  <div class="section">
+    <div class="title">❤️ 我的点赞</div>
+    <div id="myLikeList"></div>
+  </div>
+  <div class="section">
+    <div class="title">👁️ 我的关注</div>
+    <div id="myFollowList"></div>
+  </div>
+  <h3 style="margin:14px">TA的帖子</h3>
+  <div id="userPosts"></div>
+</div>
+
+<div id="cmtPage">
+  <div class="cmt-page-head">
+    <span class="close-cmt" onclick="closeCmtPage()">❌</span>
+    <div>评论</div>
+  </div>
+  <div class="cmt-list" id="cmtPageList"></div>
+  <div class="cmt-send">
+    <input id="cmtPageInput" placeholder="发表评论">
+    <button class="btn" onclick="sendPageCmt()">发送</button>
+  </div>
+</div>
+
+<div class="nav">
+  <button onclick="page('home')">🏠</button>
+  <button onclick="page('hot');loadHot()">🔥</button>
+  <button onclick="page('msgPage');loadMsgNotify()">
+    🔔
+    <span class="msg-badge" id="msgBadge"></span>
+  </button>
+  <button onclick="page('chat');loadFriendList()">💬</button>
+  <button onclick="page('user');toMe()">👤</button>
+  <button onclick="page('set')">⚙️</button>
+</div>
+
+<div class="modal" id="loginModal">
+  <div class="modal-body">
+	<span class="close" onclick="hideModal()">×</span>
+	<h3>登录</h3>
+	<input id="l_user" placeholder="用户名">
+	<input id="l_pwd" type="password" placeholder="密码">
+	<button class="btn" onclick="login()">登录</button>
+  </div>
+</div>
+
+<div class="modal" id="regModal">
+  <div class="modal-body">
+	<span class="close" onclick="hideModal()">×</span>
+	<h3>注册</h3>
+	<input id="r_user" placeholder="用户名">
+	<input id="r_pwd" type="password" placeholder="密码">
+	<button class="btn" onclick="reg()">注册</button>
+  </div>
+</div>
+
+<div class="modal" id="postModal">
+  <div class="modal-body">
+	<span class="close" onclick="hideModal()">×</span>
+	<h3>发帖</h3>
+	<textarea id="text" rows="3" placeholder="文字内容"></textarea>
+    <input id="videoUrl" placeholder="粘贴外部视频链接（可直接跳转）">
+	<select id="visibleType" onchange="changeVisibleType()">
+	  <option value="public">公开</option>
+	  <option value="self">仅自己可见</option>
+	  <option value="part">部分人可见</option>
+	</select>
+	<div id="partUserWrap">
+	  <input id="visibleUsers" placeholder="用户名用逗号分隔">
+	</div>
+	<input id="link" style="display:none">
+	<input type="file" id="video" accept="video/mp4" style="display:none">
+	<button class="btn" onclick="uploadVideo()" style="background:#10b981">上传视频</button>
+	<div class="progress"><div class="bar" id="pBar"></div></div>
+	<div id="pTip"></div>
+	<input type="file" id="img" accept="image/*" placeholder="选择图片">
+	<button class="btn" onclick="sendPost()">发布</button>
+  </div>
+</div>
+
+<script>
+const URL = "https://pyffuyljlasofxqptebq.supabase.co";
+const KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5ZmZ1eWxqbGFzb2Z4cXB0ZWJxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE4MDY1NjgsImV4cCI6MjA4NzM4MjU2OH0.f6Il6uCiBT8jHpG1sckSw3WVWYquEbL2eHncCJHGuLo";
+
+let me = null;
+let guestMode = false;
+let nowUser = null;
+let currentPostId = 0;
+let chatTargetUser = "";
+let readMsgIds = JSON.parse(localStorage.getItem("readMsgIds") || "[]");
+const $ = id => document.getElementById(id);
+
+function closeChatBox(){
+  $("chatBox").style.display = "none";
+  chatTargetUser = "";
+}
+
+function showFloatBtn(){ $("floatPostBtn").classList.remove("hide"); }
+function hideFloatBtn(){ $("floatPostBtn").classList.add("hide"); }
+
+function goUserPage(name){
+  nowUser = name;
+  page("user");
+  loadUser();
+}
+
+function changeVisibleType(){
+  let val = $("visibleType").value;
+  $("partUserWrap").style.display = val === "part" ? "block" : "none";
+}
+function canViewPost(post){
+  if(post.visible_type === "public") return true;
+  if(post.visible_type === "self") return me === post.name;
+  if(post.visible_type === "part"){
+	if(!post.visible_users) return false;
+	let arr = post.visible_users.split(",");
+	return arr.includes(me);
+  }
+  return true;
+}
+async function checkBannedCleanUser(userName){
+  const res = await fetch(`${URL}/rest/v1/users?name=eq.${userName}`, { headers: { apikey: KEY } });
+  const data = await res.json();
+  if(!data.length) return false;
+  if(data[0].banned > 0){
+	localStorage.removeItem("user");
+	await fetch(`${URL}/rest/v1/posts?name=eq.${userName}`, {method:"DELETE",headers:{apikey:KEY}});
+	await fetch(`${URL}/rest/v1/comments?name=eq.${userName}`, {method:"DELETE",headers:{apikey:KEY}});
+	return true;
+  }
+  return false;
+}
+(async function autoLogin() {
+  const u = localStorage.getItem("user");
+  if (u) {
+	const isBan = await checkBannedCleanUser(u);
+	if(isBan){
+	  $("splash").style.display = "flex";
+	  return;
+	}
+	me = u;
+	$("nick").innerText = me;
+	$("splash").style.display = "none";
+	checkNewMsgBadge();
+  }
+})();
+function saveUser(u) { localStorage.setItem("user", u); }
+function logout() { localStorage.removeItem("user"); location.reload(); }
+function toggleTheme() {
+  document.body.dataset.theme = document.body.dataset.theme == "dark" ? "light" : "dark";
+  localStorage.setItem("theme", document.body.dataset.theme);
+}
+function page(id) {
+  let pages = ["home","hot","chat","set","user","videoPage","msgPage"];
+  pages.forEach(p=>$(p).style.display="none");
+  $(id).style.display = "block";
+  if(id === "chat") hideFloatBtn(); else showFloatBtn();
+}
+function guest() {
+  guestMode = true;
+  $("nick").innerText = "游客";
+  $("splash").style.display = "none";
+  loadPosts();
+}
+function needLogin() {
+  if (guestMode) return true;
+  if (!me) return true;
+  return false;
+}
+async function isCurrentUserBanned(){
+  if(!me) return true;
+  const res = await fetch(`${URL}/rest/v1/users?name=eq.${me}`, { headers: { apikey: KEY } });
+  const data = await res.json();
+  if(!data.length) return true;
+  return data[0].banned > 0;
+}
+function hideModal() {
+  document.querySelectorAll(".modal").forEach(m => m.classList.remove("show"));
+}
+function showLogin() { hideModal(); $("loginModal").classList.add("show"); }
+function showReg() { hideModal(); $("regModal").classList.add("show"); }
+async function showPost() { 
+  if (needLogin()) return; 
+  if(await isCurrentUserBanned()){alert("账号已封禁，无法发帖");return;}
+  hideModal(); $("postModal").classList.add("show"); 
+}
+function start() { $("topProgress").style.width = "80%"; }
+function end() { $("topProgress").style.width = "100%"; setTimeout(()=>$("topProgress").style.width=0,200); }
+async function login() {
+  const user = $("l_user").value.trim();
+  const pwd = $("l_pwd").value.trim();
+  start();
+  const res = await fetch(`${URL}/rest/v1/users?name=eq.${user}&password=eq.${pwd}`, { headers: { apikey: KEY } });
+  const data = await res.json();
+  end();
+  if (!data.length) return alert("账号或密码错误");
+  if (data[0].banned > 0) { await checkBannedCleanUser(user); alert("账号已封禁，禁止登录"); return; }
+  me = user; saveUser(user); $("nick").innerText = me;
+  hideModal(); $("splash").style.display = "none";
+  loadPosts(); checkNewMsgBadge();
+}
+async function reg() {
+  const user = $("r_user").value.trim();
+  const pwd = $("r_pwd").value.trim();
+  start();
+  await fetch(`${URL}/rest/v1/users`, {
+	method: "POST", headers: { apikey: KEY, "Content-Type": "application/json" },
+	body: JSON.stringify({ name: user, password: pwd, avatar: "", banned: 0 })
+  });
+  end(); alert("注册成功"); hideModal();
+}
+function toBase64(file) {
+  return new Promise(ok => { const r=new FileReader();r.onload=e=>ok(e.target.result);r.readAsDataURL(file); });
+}
+async function uploadVideo() {
+  if (needLogin()) return;
+  if(await isCurrentUserBanned()){alert("账号已封禁，无法上传");return;}
+  $("video").onchange = async e => {
+	const f = e.target.files[0]; if (!f) return;
+	const name = `${Date.now()}.mp4`;
+	const upUrl = `${URL}/storage/v1/object/videos/${name}`;
+	const x = new XMLHttpRequest();
+	x.open("POST", upUrl);
+	x.upload.onprogress = e => {};
+	x.onload = () => { $("link").value = `${URL}/storage/v1/object/public/videos/${name}`; };
+	x.setRequestHeader("apikey", KEY);
+	x.setRequestHeader("Authorization", "Bearer " + KEY);
+	x.send(f);
+  };
+  $("video").click();
+}
+async function sendPost() {
+  if (needLogin()) return;
+  if(await isCurrentUserBanned()){alert("账号已封禁，无法发帖");return;}
+  const text = $("text").value.trim();
+  const link = $("link").value.trim();
+  const videoUrl = $("videoUrl").value.trim();
+  const imgFile = $("img").files[0];
+  if(!text && !link && !imgFile && !videoUrl){alert("不能发布空帖子");return;}
+  let visibleType = $("visibleType").value;
+  let visibleUsers = $("visibleUsers").value.trim();
+  let img64 = ""; if (imgFile) img64 = await toBase64(imgFile);
+  start();
+  await fetch(`${URL}/rest/v1/posts`, {
+	method: "POST", headers: { apikey: KEY, "Content-Type": "application/json" },
+	body: JSON.stringify({ 
+        name: me, 
+        text, 
+        img: img64, 
+        link, 
+        video_url: videoUrl,
+        views: 0, 
+        visible_type: visibleType, 
+        visible_users: visibleUsers 
+    })
+  });
+  end(); 
+  alert("发布成功"); 
+  hideModal(); 
+  $("text").value = "";
+  $("videoUrl").value = "";
+  $("link").value = "";
+  loadPosts();
+}
+async function deletePost(pid) {
+  if (needLogin()) return; if (!confirm("确定删除？")) return;
+  start();
+  await fetch(`${URL}/rest/v1/posts?id=eq.${pid}&name=eq.${me}`, {method: "DELETE", headers: { apikey: KEY } });
+  end(); loadPosts();
+}
+function openCmtPage(postId){ if(guestMode) return; currentPostId=postId; $("cmtPage").style.display="block"; loadPageComment(); }
+function closeCmtPage(){ $("cmtPage").style.display="none"; }
+async function loadPageComment(){
+  const res = await fetch(`${URL}/rest/v1/comments?post_id=eq.${currentPostId}`, { headers: { apikey: KEY } });
+  const list = await res.json();
+  let html = "";
+  if(!list.length) html = '<div style="padding:20px;text-align:center;color:var(--gray)">暂无评论</div>';
+  else list.forEach(c=>html += `<div class="item"><b class="name-link" onclick="goUserPage('${c.name}')">${c.name}</b>：${c.content}</div>`);
+  $("cmtPageList").innerHTML = html;
+}
+async function sendPageCmt(){
+  if(needLogin()) return; if(await isCurrentUserBanned()){alert("账号已封禁，无法评论");return;}
+  let val = $("cmtPageInput").value.trim(); if(!val) return;
+  start();
+  await fetch(`${URL}/rest/v1/comments`, {
+    method: "POST", headers: { apikey: KEY, "Content-Type": "application/json" },
+    body: JSON.stringify({ post_id: currentPostId, name: me, content: val })
+  });
+  end(); $("cmtPageInput").value = ""; loadPageComment(); checkNewMsgBadge();
+}
+async function loadPosts() {
+  start();
+  const res = await fetch(`${URL}/rest/v1/posts?order=id.desc`, { headers: { apikey: KEY } });
+  const list = await res.json();
+  let html = ""; $("result").innerHTML = "";
+  for (let p of list) {
+	if(!canViewPost(p)) continue;
+	const likes = await fetch(`${URL}/rest/v1/likes?post_id=eq.${p.id}`, { headers: { apikey: KEY } }).then(r=>r.json());
+	const cmts = await fetch(`${URL}/rest/v1/comments?post_id=eq.${p.id}`, { headers: { apikey: KEY } }).then(r=>r.json());
+	let media = ""; 
+	if (p.img) media += `<img src="${p.img}">`; 
+	if (p.link) media += `<video class="video" src="${p.link}" controls></video>`;
+    let videoLinkHtml = "";
+    if(p.video_url){
+        videoLinkHtml = `<a class="link-video" href="${p.video_url}" target="_blank">🎬 点击跳转观看视频</a>`;
+    }
+	const delBtn = (me === p.name) ? `<div class="del" onclick="deletePost(${p.id})">删除帖子</div>` : '';
+	const liked = likes.some(l=>l.name===me);
+	html += `
+	<div class="item">
+	  <div class="item-head">
+		<div class="name-link" onclick="goUserPage('${p.name}')">${p.name}</div>
+		<div class="views">👁️ ${p.views||0}</div>
+	  </div>
+	  <p>${p.text || ""}</p>${media}${videoLinkHtml}
+	  <div class="like ${liked?'liked':''}" onclick="toggleLike(${p.id},this)">❤️ ${likes.length}</div>
+	  <div class="cmt-btn" onclick="openCmtPage(${p.id})">💬 评论 ${cmts.length}</div>
+	  ${delBtn}
+	</div>`;
+  }
+  $("list").innerHTML = html;
+  end();
+}
+
+async function toggleLike(postId, el){
+  if (needLogin()) return; if(await isCurrentUserBanned()){alert("账号已封禁，无法点赞");return;}
+  start();
+  const has = await fetch(`${URL}/rest/v1/likes?post_id=eq.${postId}&name=eq.${me}`, { headers: { apikey: KEY } }).then(r => r.json());
+  if (has.length) {
+    await fetch(`${URL}/rest/v1/likes?id=eq.${has[0].id}`, {method:"DELETE",headers:{apikey:KEY}});
+  } else {
+    await fetch(`${URL}/rest/v1/likes`, {
+	  method: "POST", headers: { apikey: KEY, "Content-Type": "application/json" },
+	  body: JSON.stringify({ post_id: postId, name: me })
+    });
+  }
+  end();
+  loadPosts(); checkNewMsgBadge();
+}
+
+async function search() {
+  let kw = $("kw").value.trim(); start();
+  const res = await fetch(`${URL}/rest/v1/posts?order=id.desc`, { headers: { apikey: KEY } });
+  const list = await res.json();
+  $("list").innerHTML = "";
+  let filterList = list.filter(p => { if(!canViewPost(p)) return false; return p.name.includes(kw) || (p.text && p.text.includes(kw)); });
+  let html = "";
+  if(!kw){ loadPosts(); return; }
+  if(filterList.length === 0) html = `<div class="item" style="text-align:center;color:var(--gray)">没有找到相关内容</div>`;
+  else for (let p of filterList) {
+    const likes = await fetch(`${URL}/rest/v1/likes?post_id=eq.${p.id}`, { headers: { apikey: KEY } }).then(r=>r.json());
+    const cmts = await fetch(`${URL}/rest/v1/comments?post_id=eq.${p.id}`, { headers: { apikey: KEY } }).then(r=>r.json());
+    let media = ""; 
+    if (p.img) media += `<img src="${p.img}">`; 
+	if (p.link) media += `<video class="video" src="${p.link}" controls></video>`;
+    let videoLinkHtml = "";
+    if(p.video_url){
+        videoLinkHtml = `<a class="link-video" href="${p.video_url}" target="_blank">🎬 跳转视频</a>`;
+    }
+    const delBtn = (me === p.name) ? `<div class="del" onclick="deletePost(${p.id})">删除帖子</div>` : '';
+	const liked = likes.some(l=>l.name===me);
+    html += `
+    <div class="item">
+      <div class="item-head">
+        <div class="name-link" onclick="goUserPage('${p.name}')">${p.name}</div>
+        <div class="views">👁️ ${p.views||0}</div>
+      </div>
+      <p>${p.text||""}</p>${media}${videoLinkHtml}
+      <div class="like ${liked?'liked':''}" onclick="toggleLike(${p.id},this)">❤️ ${likes.length}</div>
+      <div class="cmt-btn" onclick="openCmtPage(${p.id})">💬 评论 ${cmts.length}</div>
+      ${delBtn}
+    </div>`;
+  }
+  $("result").innerHTML = html;
+  end();
+}
+
+async function loadHot() {
+  start();
+  const posts = await fetch(`${URL}/rest/v1/posts`, { headers: { apikey: KEY } }).then(r => r.json());
+  let filterPosts = posts.filter(p => canViewPost(p));
+  for (let p of filterPosts) {
+	const likes = await fetch(`${URL}/rest/v1/likes?post_id=eq.${p.id}`, { headers: { apikey: KEY } }).then(r => r.json());
+	p.likes = likes.length;
+  }
+  filterPosts.sort((a, b) => b.likes - a.likes);
+  let html = "";
+  filterPosts.slice(0,30).forEach((p,i)=>{
+    let videoLinkHtml = "";
+    if(p.video_url){
+        videoLinkHtml = `<a class="link-video" href="${p.video_url}" target="_blank">🎬 跳转视频</a>`;
+    }
+	html += `
+	<div class="item">
+	  <div>第${i+1}名 点赞${p.likes}</div>
+	  <p>${p.text||""}</p>${videoLinkHtml}
+	  <div class="name-link" onclick="goUserPage('${p.name}')">${p.name}</div>
+	</div>`;
+  });
+  $("hotList").innerHTML = html;
+  end();
+}
+
+async function checkNewMsgBadge(){
+  if(!me) return; let hasNew = false;
+  const myPosts = await fetch(`${URL}/rest/v1/posts?name=eq.${me}`, {headers:{apikey:KEY}}).then(r=>r.json());
+  for(let p of myPosts){
+    const cmts = await fetch(`${URL}/rest/v1/comments?post_id=eq.${p.id}`, {headers:{apikey:KEY}}).then(r=>r.json());
+    cmts.forEach(c=>{ if(c.name!==me && !readMsgIds.includes("c_"+c.id)) hasNew=true; });
+  }
+  const allLikes = await fetch(`${URL}/rest/v1/likes`, {headers:{apikey:KEY}}).then(r=>r.json());
+  for(let l of allLikes){
+    const p = await fetch(`${URL}/rest/v1/posts?id=eq.${l.post_id}`, {headers:{apikey:KEY}}).then(r=>r.json());
+    if(p[0]&&p[0].name===me&&l.name!==me&&!readMsgIds.includes("l_"+l.id)) hasNew=true;
+  }
+  const fans = await fetch(`${URL}/rest/v1/follows?to_name=eq.${me}`, {headers:{apikey:KEY}}).then(r=>r.json());
+  fans.forEach(f=>{ if(!readMsgIds.includes("f_"+f.id)) hasNew=true; });
+  const chatList = await fetch(`${URL}/rest/v1/chat?to_user=eq.${me}`, {headers:{apikey:KEY}}).then(r=>r.json());
+  chatList.forEach(m=>{ if(!readMsgIds.includes("ch_"+m.id)) hasNew=true; });
+  $("msgBadge").style.display = hasNew ? "block" : "none";
+}
+async function loadMsgNotify(){
+  if(!me) return; let newHtml = "", oldHtml = "";
+  const myPosts = await fetch(`${URL}/rest/v1/posts?name=eq.${me}`, {headers:{apikey:KEY}}).then(r=>r.json());
+  for(let p of myPosts){
+    const cmts = await fetch(`${URL}/rest/v1/comments?post_id=eq.${p.id}`, {headers:{apikey:KEY}}).then(r=>r.json());
+    cmts.forEach(c=>{
+      if(c.name===me) return; let key = "c_"+c.id;
+      let item = `<div class="msg-item ${!readMsgIds.includes(key)?'new':''}" onclick="markRead('${key}');gotoPost(${p.id})">💬 <span class="name-link" onclick="goUserPage('${c.name}')">${c.name}</span> 评论了你：${c.content}</div>`;
+      readMsgIds.includes(key) ? oldHtml+=item : newHtml+=item;
+    });
+  }
+  const allLikes = await fetch(`${URL}/rest/v1/likes`, {headers:{apikey:KEY}}).then(r=>r.json());
+  for(let l of allLikes){
+    const p = await fetch(`${URL}/rest/v1/posts?id=eq.${l.post_id}`, {headers:{apikey:KEY}}).then(r=>r.json());
+    if(!p[0]||p[0].name!==me||l.name===me) continue; let key = "l_"+l.id;
+    let item = `<div class="msg-item ${!readMsgIds.includes(key)?'new':''}" onclick="markRead('${key}');gotoPost(${l.post_id})">❤️ <span class="name-link" onclick="goUserPage('${l.name}')">${l.name}</span> 赞了你的帖子</div>`;
+    readMsgIds.includes(key) ? oldHtml+=item : newHtml+=item;
+  }
+  const fans = await fetch(`${URL}/rest/v1/follows?to_name=eq.${me}`, {headers:{apikey:KEY}}).then(r=>r.json());
+  fans.forEach(f=>{ let key = "f_"+f.id;
+    let item = `<div class="msg-item ${!readMsgIds.includes(key)?'new':''}" onclick="markRead('${key}')">👥 <span class="name-link" onclick="goUserPage('${f.from_name}')">${f.from_name}</span> 关注了你</div>`;
+    readMsgIds.includes(key) ? oldHtml+=item : newHtml+=item;
+  });
+  const chatList = await fetch(`${URL}/rest/v1/chat?to_user=eq.${me}`, {headers:{apikey:KEY}}).then(r=>r.json());
+  chatList.forEach(m=>{ let key = "ch_"+m.id;
+    let item = `<div class="msg-item ${!readMsgIds.includes(key)?'new':''}" onclick="markRead('${key}');page('chat');openChatWith('${m.from_user}')">✉️ <span class="name-link" onclick="openChatWith('${m.from_user}')">${m.from_user}</span> 私信：${m.content}</div>`;
+    readMsgIds.includes(key) ? oldHtml+=item : newHtml+=item;
+  });
+  if(!newHtml) newHtml = '<div class="msg-item">暂无新消息</div>';
+  if(!oldHtml) oldHtml = '<div class="msg-item">无历史消息</div>';
+  $("newMsgList").innerHTML = newHtml; $("oldMsgList").innerHTML = oldHtml;
+  $("msgBadge").style.display = "none";
+}
+function markRead(key){ if(!readMsgIds.includes(key)){ readMsgIds.push(key); localStorage.setItem("readMsgIds", JSON.stringify(readMsgIds)); } }
+function gotoPost(pid){ page("home"); loadPosts().then(()=>setTimeout(()=>openCmtPage(pid),200)); }
+
+async function loadFriendList(){
+  if(!me) return;
+  const myFollow = await fetch(`${URL}/rest/v1/follows?from_name=eq.${me}`, {headers:{apikey:KEY}}).then(r=>r.json());
+  const fans = await fetch(`${URL}/rest/v1/follows?to_name=eq.${me}`, {headers:{apikey:KEY}}).then(r=>r.json());
+  let friends = [];
+  myFollow.forEach(f=>{ if(fans.some(x=>x.from_name===f.to_name)) friends.push(f.to_name); });
+  let html = "";
+  if(!friends.length) html = '<div class="item">暂无互关好友</div>';
+  else friends.forEach(u=>html += `<div class="list-item name-link" onclick="openChatWith('${u}')">👤 ${u}</div>`);
+  $("friendList").innerHTML = html;
+  closeChatBox();
+}
+
+function openChatWith(u){
+  chatTargetUser = u;
+  $("chatBox").style.display = "block";
+  loadPrivateMsg();
+}
+async function loadPrivateMsg(){
+  if(!chatTargetUser) return;
+  const res = await fetch(
+    `${URL}/rest/v1/chat?and=(from_user.in.(${me},${chatTargetUser}),to_user.in.(${me},${chatTargetUser}))&order=id.asc`,
+    {headers:{apikey:KEY}}
+  );
+  const list = await res.json();
+  let html = "";
+  if(!list.length) html = '<div style="padding:20px;text-align:center;color:var(--gray)">暂无聊天记录</div>';
+  else list.forEach(m=>{
+    html += `<div class="msg"><div class="uname name-link">${m.from_user}</div><div>${m.content}</div></div>`;
+  });
+  $("chatMsgList").innerHTML = html;
+  $("chatMsgList").scrollTop = $("chatMsgList").scrollHeight;
+}
+async function sendPrivateMsg(){
+  if(needLogin()||!chatTargetUser) return;
+  if(await isCurrentUserBanned()){alert("账号已封禁，无法发送私信");return;}
+  let txt = $("chatInput").value.trim();
+  if(!txt) return;
+  await fetch(`${URL}/rest/v1/chat`, {
+    method:"POST", headers:{apikey:KEY,"Content-Type":"application/json"},
+    body:JSON.stringify({from_user:me,to_user:chatTargetUser,content:txt})
+  });
+  $("chatInput").value = "";
+  loadPrivateMsg();
+  checkNewMsgBadge();
+}
+
+function toMe(){ if(needLogin())return; nowUser=me; loadUser(); }
+async function loadUser(){
+  $("uname").innerText = nowUser;
+  const uInfo = await fetch(`${URL}/rest/v1/users?name=eq.${nowUser}`, {headers:{apikey:KEY}}).then(r=>r.json());
+  $("ava").src = uInfo[0]?.avatar||"https://picsum.photos/200";
+  const follow = await fetch(`${URL}/rest/v1/follows?from_name=eq.${nowUser}`, {headers:{apikey:KEY}}).then(r=>r.json());
+  const fans = await fetch(`${URL}/rest/v1/follows?to_name=eq.${nowUser}`, {headers:{apikey:KEY}}).then(r=>r.json());
+  $("follow").innerText = follow.length; $("fans").innerText = fans.length;
+
+  let followHtml = "";
+  follow.forEach(f=>{ followHtml += `<div class="list-item"><span class="name-link" onclick="goUserPage('${f.to_name}')">${f.to_name}</span></div>`; });
+  $("myFollowList").innerHTML = followHtml||"<div style='padding:8px'>暂无关注</div>";
+
+  const btn = $("followBtn");
+  if(nowUser===me){
+    btn.style.display="none";
+  }else{
+    btn.style.display="block";
+    const has = await fetch(`${URL}/rest/v1/follows?from_name=eq.${me}&to_name=eq.${nowUser}`, {headers:{apikey:KEY}}).then(r=>r.json());
+    btn.innerText = has.length?"取关":"关注";
+    btn.className = "btn " + (has.length ? "danger" : "");
+  }
+
+  const posts = await fetch(`${URL}/rest/v1/posts?name=eq.${nowUser}&order=id.desc`, {headers:{apikey:KEY}}).then(r=>r.json());
+  let html = "";
+  for(let p of posts){
+	if(!canViewPost(p)) continue;
+	let media = ""; 
+    if(p.img) media += `<img src="${p.img}">`; 
+	if(p.link) media += `<video class="video" src="${p.link}" controls></video>`;
+    let videoLinkHtml = "";
+    if(p.video_url){
+        videoLinkHtml = `<a class="link-video" href="${p.video_url}" target="_blank">🎬 点击跳转观看视频</a>`;
+    }
+	html += `<div class="item"><p>${p.text||""}</p>${media}${videoLinkHtml}</div>`;
+  }
+  $("userPosts").innerHTML = html;
+}
+async function toggleFollow(){
+  if(needLogin()) return; if(await isCurrentUserBanned()){alert("账号已封禁，无法关注");return;}
+  const has = await fetch(`${URL}/rest/v1/follows?from_name=eq.${me}&to_name=eq.${nowUser}`, {headers:{apikey:KEY}}).then(r=>r.json());
+  start();
+  if(has.length){
+    await fetch(`${URL}/rest/v1/follows?id=eq.${has[0].id}`, {method:"DELETE",headers:{apikey:KEY}});
+  }else{
+    await fetch(`${URL}/rest/v1/follows`, {
+      method:"POST", headers:{apikey:KEY,"Content-Type":"application/json"},
+      body:JSON.stringify({from_name:me,to_name:nowUser})
+    });
+  }
+  end(); loadUser(); checkNewMsgBadge();
+}
+
+function loadVideoPage(){}
+
+// 【纯原生】WebCat官方原生返回键 审核必过
+let backNum = 0;
+plus.key.addEventListener("backbutton", function () {
+    if($("cmtPage").style.display === "block"){
+        closeCmtPage();
+        return;
+    }
+    backNum++;
+    if(backNum === 1){
+        alert("再按一次退出应用");
+        setTimeout(()=>backNum=0,1800);
+    }else{
+        plus.runtime.quit();
+    }
+}, false);
+</script>
+</body>
+</html>
+  background:#007aff;
+  color:#fff;
+  border:none;
+  font-size:24px;
+  z-index:15;
+  box-shadow:0 2px 8px rgba(0,0,0,.2);
+  transition: all 0.2s;
+}
+#floatPostBtn.hide{
+  opacity:0;
+  pointer-events:none;
+  transform:scale(0.8);
+}
+#splash{
+  position:fixed;top:0;left:0;right:0;bottom:0;
+  background:url(https://picsum.photos/id/1039/1080/1920) center/cover no-repeat;
+  display:flex;align-items:center;justify-content:center;flex-direction:column;
+  z-index:9999;color:#fff;text-align:center;padding:20px
+}
+#splash::after{content:'';position:absolute;inset:0;background:rgba(0,0,0,.4);z-index:-1}
+#splash h2{font-size:22px;margin-bottom:30px}
+#splash button{width:180px;padding:12px;border-radius:30px;border:none;font-size:16px;margin:8px 0}
+#splash .login{background:#007aff;color:#fff}
+#splash .reg{background:#fff;color:#007aff}
+#splash .guest{background:#888;color:#fff}
+#topProgress{position:fixed;top:0;left:0;width:0;height:3px;background:#007aff;z-index:9999;transition:.15s}
+.header{position:fixed;top:0;left:0;right:0;height:56px;background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 16px;z-index:10}
+.header .video-btn{background:#007aff;color:#fff;border:none;border-radius:20px;padding:6px 12px;font-size:14px}
+.nav{position:fixed;bottom:0;left:0;right:0;height:60px;background:var(--card);border-top:1px solid var(--border);display:flex;justify-content:space-around;align-items:center;z-index:8}
+.nav button{
+  background:transparent;
+  border:none;
+  font-size:22px;
+  color:var(--text);
+  width:50px;height:50px;
+  position:relative;
+}
+.msg-badge{
+  position:absolute;
+  top:4px;
+  right:4px;
+  width:8px;height:8px;
+  background:red;border-radius:50%;
+  display:none;
+}
+.btn{background:#007aff;color:#fff;border:none;border-radius:20px;padding:8px 14px}
+.btn.danger{background:#ff3b30;}
+.search{margin:10px 14px 4px;display:flex;gap:6px}
+.search input{flex:1;padding:10px 12px;border-radius:12px;background:var(--card);color:var(--text);border:1px solid var(--border)}
+.item{background:var(--card);padding:14px;margin:8px 14px;border-radius:12px}
+.item-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.avatar{width:40px;height:40px;border-radius:50%}
+.views{font-size:12px;color:var(--gray);margin-left:8px}
+.item img{max-width:100%;border-radius:12px;margin-top:8px}
+.video{width:100%;border-radius:12px;background:#000;margin-top:8px}
+.link-video{
+  display:block;
+  margin-top:10px;
+  color:#007aff;
+  text-decoration:underline;
+  word-break:break-all;
+}
+.like{margin-top:8px;color:#f33;cursor:pointer}
+.like.liked{color:#f33;}
+.cmt-btn{margin-top:8px;color:#007aff;cursor:pointer}
+.cmt-box{margin-top:8px;display:flex;gap:6px}
+.cmt-box input{flex:1;padding:6px;border-radius:8px;background:var(--card);color:var(--text);border:1px solid var(--border)}
+.del{margin-top:8px;color:red;font-size:14px;cursor:pointer}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:9999}
+.modal.show{display:flex}
+.modal-body{background:var(--card);width:90%;max-width:380px;padding:20px;border-radius:16px;position:relative}
+.close{position:absolute;top:12px;right:16px;font-size:18px;cursor:pointer}
+input,textarea,select{width:100%;padding:10px;margin:6px 0;border-radius:10px;background:var(--card);color:var(--text);border:1px solid var(--border)}
+.profile{padding:20px;text-align:center}
+.avatar-lg{width:80px;height:80px;border-radius:50%}
+.row{display:flex;gap:20px;justify-content:center;margin-top:10px}
+.section{margin:14px;padding:14px;background:var(--card);border-radius:12px}
+.title{font-weight:bold;margin-bottom:10px}
+.list-item{padding:8px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.progress{width:100%;height:6px;background:var(--border);border-radius:3px;margin:6px 0;overflow:hidden}
+.bar{height:100%;background:#10b981;width:0;transition:.2s}
+.set-item{padding:14px;border-bottom:1px solid var(--border)}
+.set-title{font-weight:bold}
+.set-desc{font-size:13px;color:var(--gray);margin-top:4px}
+#cmtPage{
+  position:fixed;inset:0;background:var(--bg);
+  z-index:20;display:none;
+  padding-top:56px;padding-bottom:60px;
+}
+.cmt-page-head{
+  position:fixed;top:0;left:0;right:0;height:56px;
+  background:var(--card);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 16px;gap:16px
+}
+.cmt-page-head .close-cmt{font-size:24px;cursor:pointer}
+.cmt-list{padding:14px;padding-bottom:80px}
+.cmt-send{
+  position:fixed;bottom:60px;left:0;right:0;padding:10px 14px;
+  background:var(--card);border-top:1px solid var(--border);
+  display:flex;gap:8px
+}
+.cmt-send input{flex:1;margin:0}
+#msgPage{display:none;padding-top:60px;padding-bottom:70px}
+.msg-group-title{
+  margin:14px;font-weight:bold;color:var(--primary);
+}
+.msg-item{
+  padding:14px;margin:8px 14px;border-radius:12px;background:var(--card);
+  cursor:pointer;
+}
+.msg-item.new{border-left:4px solid red;}
+#videoPage{
+  display:none;padding-top:56px;
+  height:calc(100vh - 116px);overflow:hidden;background:#000;
+}
+.video-swiper{height:100%;overflow-y:auto;scroll-snap-type:y mandatory;}
+.video-card{height:100vh;scroll-snap-align:start;position:relative;display:flex;align-items:center;justify-content:center;}
+.video-card-media{width:100%;height:100%;object-fit:contain;}
+.video-text-only{color:#fff;font-size:20px;padding:20px;text-align:center;max-width:90%;}
+.video-side{position:absolute;right:20px;bottom:150px;display:flex;flex-direction:column;align-items:center;gap:25px;}
+.video-side-item{color:#fff;text-align:center;font-size:15px;cursor:pointer;}
+.video-side-item .icon{font-size:36px;margin-bottom:5px;}
+.video-desc{position:absolute;left:20px;right:100px;bottom:80px;color:#fff;}
+#partUserWrap{display:none}
+.tip-small{font-size:12px;color:var(--gray)}
+#chatMsgList{padding:14px;padding-bottom:80px;overflow-y:auto;}
+.msg{margin:8px 0;padding:10px;border-radius:10px;background:var(--card);}
+.msg .uname{font-size:12px;color:var(--gray);margin-bottom:4px;}
+.name-link{color:var(--primary);cursor:pointer;font-weight:500;}
+.name-link:hover{text-decoration:underline;}
+.chat-back{padding:10px 14px;color:var(--primary);cursor:pointer;border-bottom:1px solid var(--border);}
 /* 原生功能按钮样式 */
 .native-btn{
   margin:10px 14px;
