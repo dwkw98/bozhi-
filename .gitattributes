@@ -1,0 +1,6 @@
+# 强制语言识别
+*.html linguist-language=Java
+*.css linguist-language=Java
+*.js linguist-language=Java
+*.gradle linguist-language=Java
+*.apk linguist-language=Java
